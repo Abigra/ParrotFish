@@ -9,11 +9,80 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r}
+library(ggplot2)
+```
+
 ## Ecosystem Based Model
 
-##Creating the functions based on Mumby et al 2007
+##Creating the functions based on Mumby et al 2007 (Nature)
 ```{r}
+#dMdt=macroalgal growth rate
+#parameters:
+#a=growth rate of algae over coral
+#M= Macroalgae cover
+#C= Coral cover
+#g= grazing rate of macro and turf over time
+#T_= Turf cover
+#y= growth rate of macro over turf
+#C+M+T= 1 (total coverage in the system)
+F_dMdt <- function(a, M, C, g, T_, y){
+  dMdt <- (a*M*C)-((g*(M/(M+T_))))+(y*M*T_)
+  return(dMdt)
+}
+
+#dCdt= coral growth rate
+#parameters:
+#a=growth rate of algae over coral
+#M= Macroalgae cover
+#C= Coral cover
+#T_= Turf cover
+#r=growth rate of coral over turf
+#d= natural coral mortality 
+F_dCdt <- function(r,T_, C, d, a, M){
+  dCdt <- (r*T_*C)-(d*C)-(a*M*C)
+  return(dCdt)
+}
 
 ```
+
+#loop to simulate our functions 
+```{r}
+#test simulation
+#define our parameters
+a <- 8
+r<- .208
+d <- .035
+y<- -.0012
+M<- .2
+C<- .2
+T_<- 1-M-C
+g<- .1
+dt<- .01
+
+v_M_values <- vector(length=10/dt)
+v_M_values[1] <- M 
+
+for(index_m in 2:length(v_M_values)){
+  current_M_value <- v_M_values[index_m-1]
+  v_M_values[index_m] <- current_M_value+(dt*F_dMdt(a,M,C,g,T_,y))
+}
+
+
+v_C_values <- vector(length=10/dt)
+v_C_values[1]<- C
+
+for(index_c in 2:length(v_C_values)){
+  current_C_value <- v_C_values[index_c-1]
+  v_C_values[index_c] <- current_C_value+ (dt*F_dCdt(r,T_,C,d,a,M))
+}
+
+points_test<- data.frame(v_M_values,v_C_values)
+
+ggplot(data=points_test, aes(x=v_M_values, y=v_C_values))+
+  geom_point()
+```
+
+
 
 
