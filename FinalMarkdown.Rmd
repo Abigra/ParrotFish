@@ -1,0 +1,21 @@
+---
+title: "Workflow and functions"
+author: "Abigail Grassick"
+date: "12/13/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Work flow
+Ecosystem Based Model (Abby, Abigail)
+-determine the dual stable states
+
+Single Species Model (Kennady, Sabrina)
+- determine the effects of biomass on grazing rate
+
+Determination of Max sustained yeild based on grazing rate :) 
+
+EDM
