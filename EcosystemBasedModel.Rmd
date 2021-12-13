@@ -1,0 +1,19 @@
+---
+title: "Ecoystem Based Model"
+author: "Abigail Grassick"
+date: "12/13/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Ecosystem Based Model
+
+##Creating the functions based on Mumby et al 2007
+```{r}
+
+```
+
+
