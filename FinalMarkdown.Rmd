@@ -11,7 +11,53 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Work flow
 Ecosystem Based Model (Abby, Abigail)
--determine the dual stable states
+
+
+
+1. Create the function based on 
+  Mumby et. al (Nature, 2007)
+    F_dMdt (macroalgal growth rate function) and 
+    F_dCdt (coral growth rate)
+  
+2. Create for Loop to simulate the function, conducting a test first
+
+  -define the parameters using 
+    Mumby et. al (Nature, 2007)- T_, M, C  
+    Vermeij et. al (2010)- r https://doi.org/10.1371/journal.pone.0014312 
+    Mumby et al. (2006) - d, y
+    Box, Mumby (2007)- a
+    
+  - use F_dMdt and F_dCdt functions to get outputs for each function at test values g=.1, M=.2, C=.2 and put them into vectors
+    v_M_values
+    v_C_values
+    
+  -Combine the two vectors into a data frame
+    points_test
+  
+  -use ggplot to plot the test
+##original test came out wrong. The coral values were returning as negative. 
+  We adjusted the time step; that was not the issue. 
+  Problem identified: we needed to combine the two for loops so M and C were being calculated and replaced simultaneously. 
+  
+  -repeated this test 2 more times with values of M=.4 and C=.1 and vice versa, plotting all 3 to determine which stable state they are approaching at this  value of g
+##the lines didnt seem to be approaching multiple stable states, so we had to reassses the parameter values. The issue we ran into was that the plot was     only approaching a macroalgae stable state. Our a value was high, so this made sense. We then found a value in the Box (2007) paper which helped us fix    the parameter value a.   
+  
+  
+3. Iterating different grazing values through the for loop
+  
+  -g increases by intervals of .005 
+  Mumby (Nature, 2007)
+  
+  LOOP OF 3 LOOPS is needed to nest g iterations
+  
+  -create a function that generates a single series of start values
+    generate_series
+    
+  -store the values in a data frame 
+    single_series_df
+  
+  - use expand.grid() to order the C and M values as (x,y) pairs, not just linear progressions
+    object: "paired values"
 
 Single Species Model (Kennady, Sabrina)
 - determine the effects of biomass on grazing rate
