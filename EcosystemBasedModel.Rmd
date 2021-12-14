@@ -152,16 +152,23 @@ generate_series(.2,.2, .1)
 #function to test different start values
 list_M_values<- seq(0,1,by=.05)
 list_C_values <- seq(0,1,by=.05)
-
-f_start_values <- function(g){
+paired_values<-expand.grid(list_M_values,list_C_values)
+start_df<- data.frame()
   
-  for(index_start in list_M_values ){
-    M<- list_M_values[index_start]
-    C<- list_c_values[index_start]
-    generate_series(C,M,g)
-    
+f_start_values <- function(g){
+
+  for(index_start in 1:length(list_M_values) ){
+    M<- paired_values[index_start,1]
+    C<- paired_values[index_start,2]
+    stored_values<-generate_series(C,M,g)
+    #issue with how the data is being stored after each start value has been tested
+    start_df<- stored_values[1000,]
   }
+  
+  return(start_df)
 }
+
+f_start_values(.1)
 
 ```
 
