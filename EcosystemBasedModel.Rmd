@@ -162,8 +162,8 @@ f_start_values <- function(g){
     C<- paired_values[index_start,2]
     stored_values<-generate_series(C,M,g)
     #issue with how the data is being stored after each start value has been tested
-    paired_values$Mfinal[index_start]<- stored_values[1000,1]
-    paired_values$Cfinal[index_start]<- stored_values[1000,2]
+    paired_values$Mfinal[index_start]<- stored_values[nrow(stored_values),1]
+    paired_values$Cfinal[index_start]<- stored_values[nrow(stored_values),2]
   }
   return(paired_values)
 }
