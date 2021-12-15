@@ -59,6 +59,7 @@ Ecosystem Based Model (Abby, Abigail)
   - use expand.grid() to order the C and M values as (x,y) pairs, not just linear progressions
     object: "paired values"
 
+
 Single Species Model (Kennady, Sabrina)
 - determine the effects of biomass on grazing rate
 

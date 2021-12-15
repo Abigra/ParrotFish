@@ -9,11 +9,171 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r}
+library(ggplot2)
+```
+
 ## Ecosystem Based Model
 
-##Creating the functions based on Mumby et al 2007
+##Creating the functions based on Mumby et al 2007 (Nature)
 ```{r}
+#dMdt=macroalgal growth rate
+#parameters:
+#a=growth rate of algae over coral
+#M= Macroalgae cover
+#C= Coral cover
+#g= grazing rate of macro and turf over time
+#T_= Turf cover
+#y= growth rate of macro over turf
+#C+M+T= 1 (total coverage in the system)
+F_dMdt <- function(a, M, C, g, T_, y){
+  dMdt <- (a*M*C)-((g*(M/(M+T_))))+(y*M*T_)
+  return(dMdt)
+}
+
+#dCdt= coral growth rate
+#parameters:
+#a=growth rate of algae over coral
+#M= Macroalgae cover
+#C= Coral cover
+#T_= Turf cover
+#r=growth rate of coral over turf
+#d= natural coral mortality 
+F_dCdt <- function(r,T_, C, d, a, M){
+  dCdt <- (r*T_*C)-(d*C)-(a*M*C)
+  return(dCdt)
+}
 
 ```
+
+#loop to simulate our functions 
+```{r}
+#test simulation
+#define our parameters
+a <- 0.936
+r<- .208
+d <- .035
+y<- -.0012
+M<- .3
+C<- .25
+T_<- 1-M-C
+g<- .1
+dt<- .01
+
+v_M_values1 <- vector(length=10/dt)
+v_M_values1[1] <- M 
+v_C_values1 <- vector(length=10/dt)
+v_C_values1[1]<- C
+
+for(index_time in 2:length(v_M_values1)){
+  current_M_value <- v_M_values1[index_time-1]
+  current_C_value <- v_C_values1[index_time-1]
+  v_M_values1[index_time] <- current_M_value+(dt*F_dMdt(a,M,C,g,T_,y))
+  v_C_values1[index_time] <- current_C_value+ (dt*F_dCdt(r,T_,C,d,a,M))
+  M <- current_M_value
+  C <- current_C_value
+  T_<- 1-M-C
+}
+
+
+M<- .4
+C<- .1
+v_M_values2 <- vector(length=10/dt)
+v_M_values2[1] <- M 
+v_C_values2 <- vector(length=10/dt)
+v_C_values2[1]<- C
+
+for(index_time2 in 2:length(v_M_values2)){
+  current_M_value <- v_M_values2[index_time2-1]
+  current_C_value <- v_C_values2[index_time2-1]
+  v_M_values2[index_time2] <- current_M_value+(dt*F_dMdt(a,M,C,g,T_,y))
+  v_C_values2[index_time2] <- current_C_value+ (dt*F_dCdt(r,T_,C,d,a,M))
+  M <- current_M_value
+  C <- current_C_value
+  T_<- 1-M-C
+}
+
+M<- .1
+C<- .6
+v_M_values3 <- vector(length=10/dt)
+v_M_values3[1] <- M 
+v_C_values3 <- vector(length=10/dt)
+v_C_values3[1]<- C
+
+for(index_time3 in 2:length(v_M_values3)){
+  current_M_value <- v_M_values3[index_time3-1]
+  current_C_value <- v_C_values3[index_time3-1]
+  v_M_values3[index_time3] <- current_M_value+(dt*F_dMdt(a,M,C,g,T_,y))
+  v_C_values3[index_time3] <- current_C_value+ (dt*F_dCdt(r,T_,C,d,a,M))
+  M <- current_M_value
+  C <- current_C_value
+  T_<- 1-M-C
+}
+
+data.frame(v_M_values1,v_C_values1,v_M_values2, v_C_values2,v_M_values3, v_C_values3 )
+
+ggplot(data=points_test)+
+  geom_point(aes(x=v_M_values1, y=v_C_values1, color="v_M_values1"))+
+   geom_point(aes(x=v_M_values2, y=v_C_values2, color="v_M_values2"))+
+   geom_point(aes(x=v_M_values3, y=v_C_values3, color="v_M_values3"))
+
+```
+#now we can begin to iterate different grazing rates through our functions to determine 
+```{r}
+#define parameters that are not called with the function
+a <- 0.936
+r<- .208
+d <- .035
+y<- -.0012
+dt<- .01
+
+#generate 1 series
+ v_M_values1 <- vector(length=10/dt)
+ v_C_values1 <- vector(length=10/dt)
+generate_series <- function(C, M, g){
+  T_<- 1-M-C
+  v_M_values1[1] <- M 
+  v_C_values1[1]<- C
+  for(index_time in 2:length(v_M_values1)){
+  current_M_value <- v_M_values1[index_time-1]
+  current_C_value <- v_C_values1[index_time-1]
+  v_M_values1[index_time] <- current_M_value+(dt*F_dMdt(a,M,C,g,T_,y))
+  v_C_values1[index_time] <- current_C_value+ (dt*F_dCdt(r,T_,C,d,a,M))
+  M <- current_M_value
+  C <- current_C_value
+  T_<- 1-M-C
+  single_series_df <- data.frame(v_M_values1,v_C_values1)
+  }
+return(single_series_df)
+}
+#test to see if it works (it does)
+generate_series(.2,.2, .1)
+
+#function to test different start values
+list_M_values<- seq(0,1,by=.05)
+list_C_values <- seq(0,1,by=.05)
+paired_values<-expand.grid(list_M_values,list_C_values)
+#subset the data so that M+C<1 so that we dont run the function for unfeasible values (T+M+C=1)
+paired_values<-subset(paired_values, Var1+Var2<1)
+  
+f_start_values <- function(g){
+
+  for(index_start in 1:length(paired_values) ){
+    M<- paired_values[index_start,1]
+    C<- paired_values[index_start,2]
+    stored_values<-generate_series(C,M,g)
+    #issue with how the data is being stored after each start value has been tested
+    paired_values$Mfinal[index_start]<- stored_values[1000,1]
+    paired_values$Cfinal[index_start]<- stored_values[1000,2]
+  }
+  
+  return(paired_values)
+}
+
+f_start_values(.1)
+
+```
+
+
 
 
