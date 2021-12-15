@@ -158,7 +158,7 @@ paired_values<-subset(paired_values, Var1+Var2<1)
   
 f_start_values <- function(g){
 
-  for(index_start in 1:length(paired_values) ){
+  for(index_start in 1:nrow(paired_values) ){
     M<- paired_values[index_start,1]
     C<- paired_values[index_start,2]
     stored_values<-generate_series(C,M,g)
@@ -170,7 +170,15 @@ f_start_values <- function(g){
   return(paired_values)
 }
 
-f_start_values(.1)
+sample_end_traj<-f_start_values(.1)
+sample_end_traj_2states <- f_start_values(.3)
+#plot sample end states of trajectories 
+ggplot()+
+  geom_point(data=sample_end_traj, aes(x=Mfinal, y=Cfinal,color="g=.1"))+
+  geom_point(data=sample_end_traj_2states, aes(x=Mfinal, y=Cfinal, color="g=.3"))
+
+#function to test different g values
+
 
 ```
 
