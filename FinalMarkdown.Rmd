@@ -12,12 +12,14 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Work flow
 Ecosystem Based Model (Abby, Abigail)
 
+##Problems we encountered notated by two hastags
+#Functions notated by one hashtag
 
 
 1. Create the function based on 
   Mumby et. al (Nature, 2007)
-    F_dMdt (macroalgal growth rate function) and 
-    F_dCdt (coral growth rate)
+#    F_dMdt (macroalgal growth rate function) and 
+#    F_dCdt (coral growth rate)
   
 2. Create for Loop to simulate the function, conducting a test first
 
@@ -37,7 +39,7 @@ Ecosystem Based Model (Abby, Abigail)
   -use ggplot to plot the test
 ##original test came out wrong. The coral values were returning as negative. 
   We adjusted the time step; that was not the issue. 
-  Problem identified: we needed to combine the two for loops so M and C were being calculated and replaced simultaneously. 
+  Problem identified: we needed to combine the two for loops so M and C were being calculated   and replaced simultaneously. 
   
   -repeated this test 2 more times with values of M=.4 and C=.1 and vice versa, plotting all 3 to determine which stable state they are approaching at this  value of g
 ##the lines didnt seem to be approaching multiple stable states, so we had to reassses the parameter values. The issue we ran into was that the plot was     only approaching a macroalgae stable state. Our a value was high, so this made sense. We then found a value in the Box (2007) paper which helped us fix    the parameter value a.   
@@ -45,20 +47,39 @@ Ecosystem Based Model (Abby, Abigail)
   
 3. Iterating different grazing values through the for loop
   
-  -g increases by intervals of .005 
-  Mumby (Nature, 2007)
-  
   LOOP OF 3 LOOPS is needed to nest g iterations
   
-  -create a function that generates a single series of start values
-    generate_series
+  a. create a function that generates a single series of start values
+#    generate_series
     
   -store the values in a data frame 
     single_series_df
   
   - use expand.grid() to order the C and M values as (x,y) pairs, not just linear progressions
     object: "paired values"
+  
+  -subset the paired values so that T+M+C<1
+  
+  b. create a function that loops through the start values for 1 value of g
+#    f_start_values
 
+  -save the tail end of the calculations into a data frame with the start values
+   
+  -plot the paired values data frame to see if the generated data is approaching two stable states
+##This worked! Now, we want to test this with many values of g. 
+  
+  c. create a for loop to test different g values to determine the stable states 
+    
+  -g increases by intervals of .005 
+  Mumby (Nature, 2007)
+  
+  -sequenced up to .3 because we know this is the lowest g value for the two stable states to exist
+   Mumby (Nature, 2007)
+
+  -Save the outputs into a single data frame by creating a list (l_simulated_data) and then binding the lists to a singular data frame (simulated_g_data).
+  
+  
+  
 
 Single Species Model (Kennady, Sabrina)
 - determine the effects of biomass on grazing rate
