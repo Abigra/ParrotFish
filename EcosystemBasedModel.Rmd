@@ -177,8 +177,17 @@ ggplot()+
   geom_point(data=sample_end_traj, aes(x=Mfinal, y=Cfinal,color="g=.1"))+
   geom_point(data=sample_end_traj_2states, aes(x=Mfinal, y=Cfinal, color="g=.3"))
 
-#function to test different g values
-
+#for loop to test all possible g values to determine stable states; we sequenced up to .3 because this is the lowest value we know a dual stable state to exist at (Mumby et al 2007)
+gtest<- seq(0,.3, by=.005)
+grazing_df <- data.frame()
+#Error in `$<-.data.frame`(`*tmp*`, "gvalue", value = 0) : replacement has 1 row, data has 0 <- fix this after lunch
+for(index_g in 1:3){
+  g<- gtest[index_g]
+  start_values<-f_start_values(g)
+  grazing_df$gvalue[index_g] <- gtest[index_g]
+  grazing_df$Mfinal[index_g]<- stored_values[1000,1]
+  grazing_df$Cfinal[index_g]<- stored_values[1000,2]
+}
 
 ```
 
