@@ -209,8 +209,9 @@ simulated_g_data <- do.call(rbind,l_simulated_data)
 save(simulated_g_data, file="model_g_trajectories.Rdata")
 
 #simulated_g_data$coral_state<- if(simulated_g_data[,3]<0.01){TRUE}else{FALSE}
-
 simulated_g_data<-mutate(simulated_g_data,coral_state=(Mfinal<0.01))
+save(simulated_g_data, file="model_g_trajectories.Rdata")
+
 
 plot_end_trajectories<-ggplot(data=simulated_g_data, aes(x=Mfinal, y=Cfinal, color=as.factor(g)))+
   geom_point(alpha=.5)+
@@ -226,6 +227,12 @@ plot_end_trajectories
 ```
 
 ```{r}
-ggplot(data=simulated_g_data)
+ggplot(data=simulated_g_data,aes(x=g, fill=coral_state))+
+  geom_bar()+
+  labs(title="Proportion of starting conditions which result in coral stable states by grazing value", x="Grazing Rate", y="Proportion in Coral Stable State", fill="Coral Stable State")+
+theme_bw()
+
+ggplot(data=simulated_g_data, aes(x=g, y=))
+
 ```
 
