@@ -242,19 +242,23 @@ plot_end_trajectories
 
 #change legend so that false=macroalgae stable state and true=coral stab
 #fix this one so that it relables the true and false in the legend 
-ggplot(data=simulated_g_data,aes(x=g, fill=coral_state))+
+stable_states<-ggplot(data=simulated_g_data,aes(x=g, fill=coral_state))+
   geom_bar()+
   xlim(0.15, 0.5)+
-  labs(title="Proportion of starting conditions which result in coral stable states by grazing value", x="Grazing Rate", y="Proportion in Coral Stable State", fill="Coral Stable State")+
-theme_bw()
+  labs(title="Number of starting conditions which result in coral stable states by grazing value", x="Grazing Rate", y="Number in Coral Stable State", fill="Coral Stable State")+
+theme_bw()+
+scale_fill_discrete(name="Stable State", labels=c("Macroalgal State", "Coral State"))
 
 ggplot(data=simulated_g_data, aes(x=g, y=))
 
 ```
 ```{r}
-ggplot(data=proportions_df,aes(x=g, y=proportions),color="g")+
+coral_stable_states_by_g<-ggplot(data=proportions_df,aes(x=g, y=proportions),color="g")+
   geom_point()+
   labs(title="Proportion of starting conditions which result in coral stable states by grazing value", x="Grazing Rate", y="Proportion in Coral Stable State", fill="Coral Stable State")+
 theme_bw()
+```
+```{r}
+save(simulated_g_data, proportions_df, file="Model_simulated_data.Rdata")
 ```
 
