@@ -29,6 +29,8 @@ Ecosystem Based Model (Abby, Abigail)
     Mumby et al. (2006) - d, y
     Box, Mumby (2007)- a
     
+##a, r, and y we later chose on our own. We based these on what we thought to be reasonable rates of growth for the system.    
+    
   - use F_dMdt and F_dCdt functions to get outputs for each function at test values g=.1, M=.2, C=.2 and put them into vectors
     v_M_values
     v_C_values
@@ -43,6 +45,8 @@ Ecosystem Based Model (Abby, Abigail)
   
   -repeated this test 2 more times with values of M=.4 and C=.1 and vice versa, plotting all 3 to determine which stable state they are approaching at this  value of g
 ##the lines didnt seem to be approaching multiple stable states, so we had to reassses the parameter values. The issue we ran into was that the plot was     only approaching a macroalgae stable state. Our a value was high, so this made sense. We then found a value in the Box (2007) paper which helped us fix    the parameter value a.   
+
+##The parameter values are still incorrect and not reflective of the ecosystem dynamics. We came up with some arbitrary values that make sense in terms of actual dynamics and used thos parameters instead. 
   
   
 3. Iterating different grazing values through the for loop
@@ -78,7 +82,23 @@ Ecosystem Based Model (Abby, Abigail)
 
   -Save the outputs into a single data frame by creating a list (l_simulated_data) and then binding the lists to a singular data frame (simulated_g_data).
   
+4. Editing the generate_series function to be a while loop
   
+  -we want to calculate delta M and delta C in order to gauge when the while loop should stop. This is the condition of the while loop. 
+  
+  -We then tested the loop to see what it was showing us. The loop gave us a better visual of the dynamics of the function. After plotting, this showed us the trajectories much clearer, so we know that the function has the ability to show us the different stable states. 
+  
+5. Run the model
+
+  - The model worked!!
+  
+6. Organize and present the data 
+
+  -We used tidyverse to add a column to our data frame. We added a true false statement where TRUE marks the end trajectories in a coral stable state and FALSE marks the end trajectories in a macroalgae stable state. 
+  
+  -Clean up the data;
+    
+
   
 
 Single Species Model (Kennady, Sabrina)
