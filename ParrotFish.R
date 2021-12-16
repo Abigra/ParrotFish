@@ -1,9 +1,3 @@
-#Parrot fish population function with Fishing and Noise
-#Effort = E
-#Noise = tau_r
-#Carrying Capacity = K
-#Growth Rate = r
-
 E_Parrot_Function <- function(v_ex6,r,K,E,tau_r){
   
   y_i <- 1 
@@ -26,9 +20,18 @@ E_Parrot_Function <- function(v_ex6,r,K,E,tau_r){
     y_i = y_i+1
     Parrot[2] <- ((rlnorm(1, meanlog=log(df_PFISH_y_i$N_3[y_i-1])+(r*(1-(df_PFISH_y_i$N_3[y_i-1])/K)), sdlog=tau_r)))
     df_PFISH_y_i <-rbind(df_PFISH_y_i, c(y_i,Parrot))
+    
   }
   df_PFISH_y_i$Grazers <- (df_PFISH_y_i$N_2 + df_PFISH_y_i$N_3 + df_PFISH_y_i$N_4)
+  df_PFISH_y_i$Yield_IP <- E*(df_PFISH_y_i$N_2)/(1-E)
+  df_PFISH_y_i$Yield_A <- E*(df_PFISH_y_i$N_3)/(1-E)
+  df_PFISH_y_i$Yield_TP  <- E*(df_PFISH_y_i$N_4)/(1-E)
+  df_PFISH_y_i$Total_Yield <- (df_PFISH_y_i$Yield_IP + df_PFISH_y_i$Yield_A + df_PFISH_y_i$Yield_TP)
   
   return(df_PFISH_y_i)
 }
 
+v_ex6 <- matrix(c(0.5,0.5,0.5,0.5), nrow = 4, byrow = TRUE)
+
+
+FISH <- E_Parrot_Function(v_ex6,0.71,1,0.2,0.1)
