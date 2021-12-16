@@ -20,21 +20,28 @@ F_dCdt <- function(r,T_, C, d, a, M){
 
 #create a function that generates a single series of start values
 #    generate_series
-
 generate_series <- function(C, M, g){
-  T_<- 1-M-C
-  v_M_values1[1] <- M 
+  v_M_values1 <- vector()
+  v_C_values1 <- vector()
+  v_M_values1[1] <-M 
   v_C_values1[1]<- C
-  for(index_time in 2:length(v_M_values1)){
-    current_M_value <- v_M_values1[index_time-1]
-    current_C_value <- v_C_values1[index_time-1]
-    v_M_values1[index_time] <- current_M_value+(dt*F_dMdt(a,M,C,g,T_,y))
-    v_C_values1[index_time] <- current_C_value+ (dt*F_dCdt(r,T_,C,d,a,M))
-    M <- current_M_value
-    C <- current_C_value
+  T_<- 1-M-C
+  index_time=2
+  delta_M <-1
+  delta_C <-1
+  while(sqrt(delta_M^2+delta_C^2) >.00000001){
+    M <- v_M_values1[index_time-1]
+    C <- v_C_values1[index_time-1]
     T_<- 1-M-C
-    single_series_df <- data.frame(v_M_values1,v_C_values1)
+    newM<- M+(dt*F_dMdt(a,M,C,g,T_,y))
+    newC <- C+ (dt*F_dCdt(r,T_,C,d,a,M))
+    v_M_values1[index_time] <- newM
+    v_C_values1[index_time]<- newC
+    delta_M<- newM-M
+    delta_C<- newC-C
+    index_time<- index_time+1
   }
+  single_series_df <- data.frame(v_M_values1,v_C_values1)
   return(single_series_df)
 }
 
@@ -47,9 +54,8 @@ f_start_values <- function(g){
     M<- paired_values[index_start,1]
     C<- paired_values[index_start,2]
     stored_values<-generate_series(C,M,g)
-    #issue with how the data is being stored after each start value has been tested
-    paired_values$Mfinal[index_start]<- stored_values[1000,1]
-    paired_values$Cfinal[index_start]<- stored_values[1000,2]
+    paired_values$Mfinal[index_start]<- stored_values[nrow(stored_values),1]
+    paired_values$Cfinal[index_start]<- stored_values[nrow(stored_values),2]
   }
   
   return(paired_values)
