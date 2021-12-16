@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 source("Functions_Rscript.R")
 library(ggplot2)
+library(tidyverse)
 ```
 
 ## Ecosystem Based Model
@@ -207,8 +208,24 @@ simulated_g_data <- do.call(rbind,l_simulated_data)
 #this saves the data from the above loop into a data library 
 save(simulated_g_data, file="model_g_trajectories.Rdata")
 
-ggplot(data=simulated_g_data, aes(x=Mfinal, y=Cfinal, color=as.factor(g)))+
-  geom_point()
+#simulated_g_data$coral_state<- if(simulated_g_data[,3]<0.01){TRUE}else{FALSE}
+
+simulated_g_data<-mutate(simulated_g_data,coral_state=(Mfinal<0.01))
+
+plot_end_trajectories<-ggplot(data=simulated_g_data, aes(x=Mfinal, y=Cfinal, color=as.factor(g)))+
+  geom_point(alpha=.5)+
+  labs(title="End Trajectories of all G values", x="Macro Algal Coverage", y="Coral Coverage", color="Grazing Rate")+
+theme_bw()
+
+ggplot(data=simulated_g_data, aes(x=Mfinal, y=Cfinal, color=as.factor(g)), group=coral_state)+
+  geom_point(alpha=.5)+
+  labs(title="End Trajectories of all G values", x="Macro Algal Coverage", y="Coral Coverage", color="Grazing Rate")+
+theme_bw()
+
+plot_end_trajectories
 ```
 
+```{r}
+ggplot(data=simulated_g_data)
+```
 
