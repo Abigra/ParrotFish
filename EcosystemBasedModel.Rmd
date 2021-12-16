@@ -212,6 +212,16 @@ save(simulated_g_data, file="model_g_trajectories.Rdata")
 simulated_g_data<-mutate(simulated_g_data,coral_state=(Mfinal<0.01))
 save(simulated_g_data, file="model_g_trajectories.Rdata")
 
+proportions_df <-data.frame(g=gtest,proportions=NA)
+for(iterator in 1:21){
+  g_value<-gtest[iterator]
+    subsetg<-subset(simulated_g_data, g==g_value)
+    proportions_df$proportions[iterator]<- sum(subsetg[,6])/nrow(subsetg)
+  }
+save(proportions_df, file="simulated_data_proportions.Rdata")
+
+
+
 
 plot_end_trajectories<-ggplot(data=simulated_g_data, aes(x=Mfinal, y=Cfinal, color=as.factor(g)))+
   geom_point(alpha=.5)+
