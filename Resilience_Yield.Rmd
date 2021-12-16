@@ -1,0 +1,38 @@
+
+```{r}
+source("ParrotFish.R")
+source("Linking_Fish_Grazing.R")
+```
+
+```{r}
+#Fililng in Yield and Number of Fish in the dataframe 
+
+e <- (seq(0,0.3, by=0.01)) 
+rho <- 1
+
+Resilience_Frame <- data.frame(Effort = e,
+                           Avg_Yield= NA,
+                           Num_Fish= NA, 
+                           Grazing= NA, 
+                           Resilience= NA
+)
+
+for (iter in e){
+  PopDynamics <- E_Parrot_Function(v_ex6,0.71,1,iter,0)
+  Resilience_Frame$Num_Fish[rho]= mean(PopDynamics$Grazers[100:150])
+  Resilience_Frame$Avg_Yield[rho] <- sum(PopDynamics$Total_Yield[100:150]/51)
+  rho <- rho +1
+}
+```
+
+```{r}
+#Grazing 
+
+Grazing_Values <- GrazeLine(Resilience_Frame$Num_Fish)
+
+Resilience_Frame$Grazing <- Grazing_Values
+```
+
+
+
+
