@@ -212,13 +212,13 @@ simulated_g_data<-mutate(simulated_g_data,coral_state=(Mfinal<0.01))
 save(simulated_g_data, file="model_g_trajectories.Rdata")
 #subsetting the data in order to look at the proportions of points which yeild a stable coral state
 proportions_df <-data.frame(g=gtest,proportions=NA)
-for(iterator in 1:21){
+for(iterator in 1:111){
   g_value<-gtest[iterator]
     subsetg<-subset(simulated_g_data, g==g_value)
     proportions_df$proportions[iterator]<- sum(subsetg[,6])/nrow(subsetg)
 }
 
-proportions_df$g<-as.factor(proportions_df$g)
+proportions_df$g<-as.numeric(proportions_df$g)
 
 save(proportions_df, file="simulated_data_proportions.Rdata")
 
@@ -241,8 +241,10 @@ plot_end_trajectories
 ```{r}
 
 #change legend so that false=macroalgae stable state and true=coral stab
+#fix this one so that it relables the true and false in the legend 
 ggplot(data=simulated_g_data,aes(x=g, fill=coral_state))+
   geom_bar()+
+  xlim(0.15, 0.5)+
   labs(title="Proportion of starting conditions which result in coral stable states by grazing value", x="Grazing Rate", y="Proportion in Coral Stable State", fill="Coral Stable State")+
 theme_bw()
 
