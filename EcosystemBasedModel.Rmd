@@ -191,7 +191,7 @@ test.plot
 
 ```{r}
 #for loop to test all possible g values to determine stable states; we sequenced up to .3 because this is the lowest value we know a dual stable state to exist at (Mumby et al 2007)
-gtest<- seq(.2,.3, by=.005)
+gtest<- seq(.15,.7, by=.005)
 grazing_df <- data.frame()
 
 l_simulated_data<-vector(mode="list")
@@ -207,7 +207,6 @@ for(index_g in 1:length(gtest)){
 simulated_g_data <- do.call(rbind,l_simulated_data)
 #this saves the data from the above loop into a data library 
 save(simulated_g_data, file="model_g_trajectories.Rdata")
-
 #simulated_g_data$coral_state<- if(simulated_g_data[,3]<0.01){TRUE}else{FALSE}
 simulated_g_data<-mutate(simulated_g_data,coral_state=(Mfinal<0.01))
 save(simulated_g_data, file="model_g_trajectories.Rdata")
@@ -240,6 +239,8 @@ plot_end_trajectories
 ```
 
 ```{r}
+
+#change legend so that false=macroalgae stable state and true=coral stab
 ggplot(data=simulated_g_data,aes(x=g, fill=coral_state))+
   geom_bar()+
   labs(title="Proportion of starting conditions which result in coral stable states by grazing value", x="Grazing Rate", y="Proportion in Coral Stable State", fill="Coral Stable State")+
