@@ -1,7 +1,12 @@
-
-
 # Create the functions based on 
 #Mumby et. al (Nature, 2007)
+#defining parameters
+a <- 0.2
+r<- 0.1
+d <-0.035
+y<- 0.5
+dt<- .01
+
 #    F_dMdt (macroalgal growth rate function) and 
 #    F_dCdt (coral growth rate)
 

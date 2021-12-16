@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+source("Functions_Rscript.R")
 library(ggplot2)
 ```
 
@@ -121,30 +122,36 @@ ggplot(data=points_test)+
 #now we can begin to iterate different grazing rates through our functions to determine 
 ```{r}
 #define parameters that are not called with the function
-a <- 0.936
-r<- .208
-d <- .035
-y<- -.0012
+a <- 0.2
+r<- 0.1
+d <-0.035
+y<- 0.5
 dt<- .01
 
 #generate 1 series
- v_M_values1 <- vector(length=10/dt)
- v_C_values1 <- vector(length=10/dt)
 generate_series <- function(C, M, g){
-  T_<- 1-M-C
-  v_M_values1[1] <- M 
+  v_M_values1 <- vector()
+  v_C_values1 <- vector()
+  v_M_values1[1] <-M 
   v_C_values1[1]<- C
-  for(index_time in 2:length(v_M_values1)){
-  current_M_value <- v_M_values1[index_time-1]
-  current_C_value <- v_C_values1[index_time-1]
-  v_M_values1[index_time] <- current_M_value+(dt*F_dMdt(a,M,C,g,T_,y))
-  v_C_values1[index_time] <- current_C_value+ (dt*F_dCdt(r,T_,C,d,a,M))
-  M <- current_M_value
-  C <- current_C_value
   T_<- 1-M-C
-  single_series_df <- data.frame(v_M_values1,v_C_values1)
+  index_time=2
+  delta_M <-1
+  delta_C <-1
+  while(sqrt(delta_M^2+delta_C^2) >.00000001){
+    M <- v_M_values1[index_time-1]
+    C <- v_C_values1[index_time-1]
+    T_<- 1-M-C
+    newM<- M+(dt*F_dMdt(a,M,C,g,T_,y))
+    newC <- C+ (dt*F_dCdt(r,T_,C,d,a,M))
+    v_M_values1[index_time] <- newM
+    v_C_values1[index_time]<- newC
+    delta_M<- newM-M
+    delta_C<- newC-C
+    index_time<- index_time+1
   }
-return(single_series_df)
+  single_series_df <- data.frame(v_M_values1,v_C_values1)
+  return(single_series_df)
 }
 #test to see if it works (it does)
 generate_series(.2,.2, .1)
@@ -161,13 +168,15 @@ f_start_values <- function(g){
     M<- paired_values[index_start,1]
     C<- paired_values[index_start,2]
     stored_values<-generate_series(C,M,g)
-    #issue with how the data is being stored after each start value has been tested
     paired_values$Mfinal[index_start]<- stored_values[nrow(stored_values),1]
     paired_values$Cfinal[index_start]<- stored_values[nrow(stored_values),2]
   }
   return(paired_values)
 }
 
+paired_values$coral_state<- if(paired_values$Mfinal<.01){TRUE}else{FALSE}
+
+  
 sample_end_traj<-f_start_values(.1)
 sample_end_traj_2states <- f_start_values(.3)
 #plot sample end states of trajectories 
@@ -181,7 +190,7 @@ test.plot
 
 ```{r}
 #for loop to test all possible g values to determine stable states; we sequenced up to .3 because this is the lowest value we know a dual stable state to exist at (Mumby et al 2007)
-gtest<- seq(.1,.3, by=.005)
+gtest<- seq(.2,.3, by=.005)
 grazing_df <- data.frame()
 
 l_simulated_data<-vector(mode="list")
