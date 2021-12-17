@@ -1,3 +1,4 @@
+library(ggpubr)
 a <- 0.2
 r<- 0.1
 d <- .035
@@ -24,3 +25,12 @@ plot3
 plot4
 
 save(plot1,plot2,plot3,plot4, file="simulated_test_trajectories.Rdata")
+
+trajectories_figure<- par(mfrow=c(2,2))
+plot1
+plot2
+plot3
+plot4
+trajectories_figure <- ggarrange(plot3,plot1,plot4,plot2)
+
+trajectories_figure

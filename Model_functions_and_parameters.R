@@ -1,4 +1,56 @@
-#functions for the single species model
+###single species model functions and calculations
+
+E_Parrot_Function <- function(v_ex6,r,K,E,tau_r){
+  
+  y_i <- 1 
+  
+  df_PFISH_y_i <- data.frame(Year = y_i,
+                             N_1=v_ex6[1], 
+                             N_2=v_ex6[2],
+                             N_3=v_ex6[3],
+                             N_4=v_ex6[4]
+  )
+  ParrotFish_M <- rbind(
+    c(0,0,df_PFISH_y_i$N_3*(exp(r*(1-df_PFISH_y_i$N_3/K))),0),
+    c(0.55,0,0,0),
+    c(0,0.55*(1-E),0.275*(1-E),0),
+    c(0,0,0.275*(1-E),0)
+  )
+  
+  while (y_i <= 400) {
+    Parrot = ParrotFish_M%*%as.numeric(df_PFISH_y_i[y_i,2:5])
+    y_i = y_i+1
+    Parrot[2] <- ((rlnorm(1, meanlog=log(df_PFISH_y_i$N_3[y_i-1])+(r*(1-(df_PFISH_y_i$N_3[y_i-1])/K)), sdlog=tau_r)))
+    df_PFISH_y_i <-rbind(df_PFISH_y_i, c(y_i,Parrot))
+    
+  }
+  df_PFISH_y_i$Grazers <- (df_PFISH_y_i$N_2 + df_PFISH_y_i$N_3 + df_PFISH_y_i$N_4)
+  df_PFISH_y_i$Yield_IP <- E*(df_PFISH_y_i$N_2)/(1-E)
+  df_PFISH_y_i$Yield_A <- E*(df_PFISH_y_i$N_3)/(1-E)
+  df_PFISH_y_i$Yield_TP  <- E*(df_PFISH_y_i$N_4)/(1-E)
+  df_PFISH_y_i$Total_Yield <- (df_PFISH_y_i$Yield_IP + df_PFISH_y_i$Yield_A + df_PFISH_y_i$Yield_TP)
+  
+  return(df_PFISH_y_i)
+}
+
+v_ex6 <- matrix(c(0.5,0.5,0.5,0.5), nrow = 4, byrow = TRUE)
+
+
+FISH <- E_Parrot_Function(v_ex6,0.71,1,0.1,0.1)
+
+
+ggplot(data=FISH, aes(x=Year, y=N_2)) +
+  geom_line(color="red") +
+  geom_line(aes(x=Year, y=N_3), color="yellow")+
+  geom_line(aes(x=Year, y=N_4,), color="green")+
+  #geom_line(aes(x=Year, y=Yield_A,), color="purple")+
+  labs(x= "Year", y= "Population Distribution")
+
+#Created column called Grazers (addition of 3 age phases that graze)
+#Averaged these values from year 100-150
+#No fishing
+#Number of fish to correlate with upper bound of grazing
+
 set.seed(5)
 
 FISH <- E_Parrot_Function(v_ex6,0.71,1,0,0.1)
@@ -34,7 +86,13 @@ Fish_test <- (seq(0,2, by=0.1))
 
 Grazing_Test <- GrazeLine(Fish_test)
 
-#Determining yield from effort
+
+plot<- data.frame(Fish_test,Grazing_Test)
+ggplot(data= plot, aes(x= Fish_test, y=Grazing_Test))+
+  geom_line(color="pink")+
+  geom_point(aes(x= 1.59, y=0.21),shape= 8, color="blue", size=8)+
+  labs(x="Average Yield (parrotfish)", y="Grazing Rate (% algae per time step)")
+
 e <- (seq(0,0.3, by=0.01)) 
 rho <- 1
 
@@ -52,7 +110,8 @@ plot(e,Effort_Frame$Avg_Yield )
 which.max(Effort_Frame$Avg_Yield)
 
 
-#functions for the ecosystem based model
+
+###functions for the ecosystem based model
 
 a <- 0.2
 r<- 0.1
@@ -106,6 +165,11 @@ generate_series <- function(C, M, g){
 #create a function that loops through the start values for 1 value of g
 #    f_start_values
 
+list_M_values<- seq(0,1,by=.05)
+list_C_values <- seq(0,1,by=.05)
+paired_values<-expand.grid(list_M_values,list_C_values)
+paired_values<-subset(paired_values, Var1+Var2<1)
+
 f_start_values <- function(g){
   
   for(index_start in 1:nrow(paired_values) ){
@@ -118,4 +182,6 @@ f_start_values <- function(g){
   
   return(paired_values)
 }
+
+#paired_values$coral_state<- if(paired_values$Mfinal<.01){TRUE}else{FALSE}
 

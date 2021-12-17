@@ -1,41 +1,184 @@
 ---
 title: "Final Markdown"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(ggplot2)
-
-
-
-
-```
-
-##Introduction
-
-
-
-```{r}
+library(ggpubr)
+load("simulated_test_trajectories.Rdata")
+load("Combined_Model_simulated_data.Rdata")
+source("Model_functions_and_parameters.R")
+source("Model_figures.R")
 
 ```
 
-##Methods
+#### Introduction
+
+Creating Models with simulated parameters are very helpful for scientists to have an idea of how populations will look like in the future. They quantify potential threats to collapses and exploitation and allow us to create or modernize management protocols to ensure the protection of various species. Our project focuses on a species of parrotfish known as Sparisoma viride or the Stoplight parrotfish. This species inhabits regions such as Bermuda, the Florida Keys and Belize. Living on coastal waters, they mainly feed off of the corals breaking off pieces and ingesting the macroalgae found on them and around them. Being hermaphrodites as well as showing sexual dichromatism creates an interesting age structure within their population. Stoplight parrotfish contain four prominent life stages: juvenile, initial phase, adult, and terminal phase. While parrotfish may change their sex based on necessity of the school, only those who are prominent males ever enter the terminal phase. 
+
+Stable states are one way in which to measure ecosystem resilience to perturbations (Mumby et al 2007). Reef systems contain macroalgae, coral, and turf as the primary mediums of ground cover, and each organism has the ability to outcompete the others for space in the ecosystem. Macroalgae colonizes turf at a rate faster than it colonizes coral, and turf colonizes dead corals at a rate slower than macroalgae can colonize corals (Mumby et al 2007). In this study, we focus on the presence of a coralline stable state as a metric for system resilience to changes, particularly that of fishing pressure. 
+
+By using ecosystem based models and single species models, we are able to assess important aspects of a fish stock. One can retrieve information such as the maximum sustainable yield and stable states of certain scenarios which can, again, help with management strategies and provide insight on what will be the potential future of these stocks.
 
 
-```{r}
 
+#### Methods
+
+Two models were generated for this project. The first, a single species model which identified fish population dynamics, and inferred the pressures of fishing on the population, as well as population size on grazing. The second model was an ecosystem based model which predicted the effects of grazing rates on system resilience, using the proporiton of coral stable states that existed as a metric for this. 
+
+### Single Species Model
+A simple Leslie Matrix was populated through researched parrotfish life cycles. The four life phases of the Stoplight parrotfish (juvenile, initial phase, adults, and terminal phase) were used in order to simulate population dynamics over time. Included within the matrix were the mortality rates derived from Sagarese (2018) which were 0.55. The addition of effort within the matrix was multiplied by the mortality rates as (1-E). A recruitment function was also used within the matrix for the first year adult. The variables used within the function were growth rate, noise, and fishing effort. The initial population distribution was set at 0.5 for each age class. 
+Shifting these variables allowed us to find a stable state for the simulated species model. These variables were growth rate set at 0.71, noise at 0.1, and effort at 0.1. This baseline state was used for the rest of our interpretations. 
+
+A linear function found with the grazing rate Max/Min,  determined by the EBM, connected the number of fish to a grazing rate. The max grazing rate was 0.385 and the minimum grazing rate was 0.1. This function provides a linear plot that can be used to determine the grazing rate based on the number of fish available.
+The function used for population dynamics in our first step is now used to determine the correlation between yield and effort. Yield was calculated by:
+
+$$Yield=E(n)/1-E$$
+
+Where “n” is equal to the number of fish in any age class. Using a simulated distribution of effort values within the function, we determined the average yield. The average yield found with these effort values were plotted. The optimum value was found which was the resulting maximum sustainable yield at an effort of 0.16 and a yield of 0.1557.  
+
+### Ecosystem Based Model
+
+The ecosystem based model evaluates the effects of grazing rate on the presence of stable states within the system. The model was created using 2 differential equations generated in Mumby et al (2007), which describe the growth rates of coral and algae under different parameters (a, which indicates macro algal growth over coral; g which indicates the grazing rate; r which indicates the growth rate of coral over turf; and d which indicates the death rate of corals).
+
+$$dM/dt = aMC-gM/M+T+yMT$$
+
+$$dC/dt =rTC-dC-aMC$$
+
+Each parameter needed to be fit to our model; parameters were decided based on reasonable inferences of the population growth rates. Because this model operates in a dimensionless space, parameters were fit based on proportions (i.e. parameter a which measures macroalgal growth over coral was set to 0.2, indicating macroalgae will overgrow 20% of the coral present). Parameters were set as follows: a=0.2, r=.01, y=.5, and d=.035.   These parameters were tested using our model, and then comparing the results to those of Mumby et al (2007). 
+
+We were able to pair all possible starting conditions for coral and macroalgae; using these pairs, we determined end trajectories for all possible starting conditions for grazing values .15 - .7 (sequenced by increments of .005 per Mumby et al (2007).
+
+Every possible pair of starting conditions for Macroalgal and Coral cover were tested with all possible grazing values. Then, end trajectories of these points were plotted to determine how many stable states were reached. Then, the proportion of start values which result in a coral stable state were calculated for each value of g. 
+
+
+```{r, Single Species Model, eval=FALSE}
+
+for (iter in e){
+  TEST <- E_Parrot_Function(v_ex6,0.71,1,iter,0)
+  Effort_Frame$Avg_Yield[rho] <- sum(TEST$Total_Yield[100:150]/51)
+  rho <- rho +1
+}
+plot(e,Effort_Frame$Avg_Yield )
+
+which.max(Effort_Frame$Avg_Yield)
 
 ```
 
-
-
-##Results
-```{r}
+```{r,figures_1}
+fishing_vs_grazing
+yield_from_effort
 
 ```
 
-##Discussion
+```{r,Ecosystem Based Model,eval=FALSE}
+gtest<- seq(.15,.7, by=.005)
+grazing_df <- data.frame()
+
+l_simulated_data<-vector(mode="list")
+
+for(index_g in 1:length(gtest)){
+  g<- gtest[index_g]
+  start_values<-f_start_values(g)
+  start_values$g <- g
+  l_simulated_data[[index_g]]<- start_values
+ 
+}
+
+simulated_g_data <- do.call(rbind,l_simulated_data)
+simulated_g_data<-mutate(simulated_g_data,coral_state=(Mfinal<0.01))
+proportions_df <-data.frame(g=gtest,proportions=NA)
+for(iterator in 1:111){
+  g_value<-gtest[iterator]
+    subsetg<-subset(simulated_g_data, g==g_value)
+    proportions_df$proportions[iterator]<- sum(subsetg[,6])/nrow(subsetg)
+}
+
+proportions_df$g<-as.numeric(proportions_df$g)
+
+```
+
+```{r, figures_2}
+stable_states
+coral_stable_states_by_g
+```
+
+```{r,Combined Model, eval=FALSE }
+e <- (seq(0,0.3, by=0.01)) 
+rho <- 1
+Resilience_Frame <- data.frame(Effort = e,
+                           Avg_Yield= NA,
+                           Num_Fish= NA, 
+                           Grazing= NA, 
+                           Resilience= NA
+)
+
+for (iter in e){
+  PopDynamics <- E_Parrot_Function(v_ex6,0.71,1,iter,0)
+  Resilience_Frame$Num_Fish[rho]= mean(PopDynamics$Grazers[100:150])
+  Resilience_Frame$Avg_Yield[rho] <- sum(PopDynamics$Total_Yield[100:150]/51)
+  rho <- rho +1
+}
+
+Grazing_Values <- GrazeLine(Resilience_Frame$Num_Fish)
+
+Resilience_Frame$Grazing <- Grazing_Values
+
+gtest<- as.vector(Resilience_Frame$Grazing)
+grazing_df_SSM <- data.frame()
+
+l_simulated_data<-vector(mode="list")
+
+for(index_g in 1:length(gtest)){
+  g<- gtest[index_g]
+  start_values<-f_start_values(g)
+  start_values$g <- g
+  l_simulated_data[[index_g]]<- start_values
+
+}
+
+simulated_g_data_SSM <- do.call(rbind,l_simulated_data)
+
+simulated_g_data_SSM<-mutate(simulated_g_data,coral_state=(Mfinal<0.01))
+
+proportions_df_SSM <-data.frame(g=gtest,proportions=NA)
+for(iterator in 1:31){
+  g_value<-gtest[iterator]
+    subsetg<-subset(simulated_g_data_SSM, g==g_value)
+    proportions_df_SSM$proportions[iterator]<- sum(subsetg[,6])/nrow(subsetg)
+}
+
+proportions_df_SSM$g<-as.numeric(proportions_df_SSM$g)
+
+Resilience_Frame$Resilience<-proportions_df_SSM$g
+
+```
+
+```{r, Figures_3}
+Resilience_Yield_Figure
+```
+
+#### Results
+## Single Species Model:
+The analysis of  the single species model and the resulting plots led us to conclude a few conclusions. Without fishing or noise added to the population dynamics the stable state population stabilized with a distributed population. The highest population was found with the terminal phase adults. WIth the addition of noise and effort to this function, the resulting plot displayed that a 0.1 value for effort still allowed for a stable population. When effort was increased to 0.3 the population collapsed. Therefore, the highest amount of effort with stable dynamics was found to be approximately 0.2. Creating a maximum sustainable yield graph allowed us to interpret how fishing effort may affect the parrotfish population. We determined that the MSY for stoplight parrotfish would be 0.1557 with a fishing effort of 0.16.
+
+## Ecosystem Based Model:
+The ecosystem based model showed that a dual stable state emerges at a grazing rate of .21. The system maintains the dual stable state until grazing rates are at a value of .385. At this grazing rate, at any starting value for macroalgal and coral cover the system will move toward a coral stable state, and eventually reach a state of 100% coral cover. 
+
+
+## Average Yield Using Grazing Rate:
+Once we were able to convert the amount of parrotfish into an average yield proportion and establish an approximation of the maximum grazing rate allowed to equip the ecosystem with a stable state, we developed a plot showing the ratio of the population of parrotfish and how it affects the grazing rate. We can see that the trend is a positive slope upward showing a proportional correlation between grazing and population. Based on our stable state grazing number (0.385), we were able to mark an approximation of the maximum average size of the population required to maintain the ecosystem’s state as stable as being 1.59. 
+
+
+#### Discussion
+
+The analysis and modeling conducted were applied to explore the ecosystem’s threshold based on grazing rates and population size dynamics. The EBM model was used to determine the maximum grazing rate for which the dual stable states exist. The ecosystem’s health is related to coral cover and macroalgal cover , and parrotfish are an indicator of coral reef health (Mumby et al, 2007). Using a generated array of starting values for macroalgal and coral cover at increasing increments of .05(Mumby et al, 2007) and testing them against various grazing values at increments of .005(Mumby et al, 2007), we found that the grazing rate at which the dual stable states emerge is .21. Once the grazing rate decreases past .21, the ecosystem moves toward an unstable equilibrium at the coral state (Figure 1). Figure 1 depicts population size vs. grazing rates. It suggests there is a linear relationship between grazing rates and population size. The graph suggests that the ecosystem can handle increasing population sizes as grazing rates increase. The blue star (g=.385 and population size =1.59) indicates the thresholds for which  any starting value of macroalgal and coral cover results in a coral stable state. Figure five displays how resilience changes with maximum sustainable yield. If the population size decreases, the grazing rate will decrease and the ecosystem will no longer have a coral stable state, just a macroalgal stable state. If the population size decreases to the point where the grazing rate dips below .21, then the ecosystem will approach a macroalgal stable state.  Population sizes can continue to increase and a dual stable state or coral stable state will be maintained. 
+
+Parrotfish are an indicator species of coral reef health (Mumby et al, 2007). We were able to translate parrotfish populations into a measure of ecosystem resilience using these modeling techniques. While this model allows us to use benthic cover as an indicator of ecosystem equilibrium, these results carry a lot of assumptions, and ecosystem management decisions should not be based solely on this result. The threshold we determined assumes that (1)parrotfish graze turf, macroalgae, and coral at the same rate, (2)there is no recruitment of macroalgae, coral, or turf, (3)this model is a closed system, (4)there are no other grazers in the system, and (5)this model take place in a dimensionless space. Ecosystems are dynamic and are affected by many different abiotic and biotic processes. This study does not account for the environmental impact of other potential changes in the ecosystem, and is limited in that regard. The concept of using an indicator species to judge ecosystem resilience in order to make management decisions should be explored further. Arguments for this modeling technique could be strengthened by integrating a dual species model or Empirical Dynamic Modeling.  
 
 

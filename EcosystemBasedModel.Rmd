@@ -175,6 +175,9 @@ f_start_values <- function(g){
   return(paired_values)
 }
 
+f_start_values
+
+
 paired_values$coral_state<- if(paired_values$Mfinal<.01){TRUE}else{FALSE}
 
   
@@ -201,8 +204,10 @@ for(index_g in 1:length(gtest)){
   start_values<-f_start_values(g)
   start_values$g <- g
   l_simulated_data[[index_g]]<- start_values
- 
 }
+
+#paired_values$coral_state<- if(paired_values$Mfinal<.01){TRUE}else{FALSE}
+
 
 simulated_g_data <- do.call(rbind,l_simulated_data)
 #this saves the data from the above loop into a data library 
@@ -259,6 +264,49 @@ coral_stable_states_by_g<-ggplot(data=proportions_df,aes(x=g, y=proportions),col
 theme_bw()
 ```
 ```{r}
-save(simulated_g_data, proportions_df, file="Model_simulated_data.Rdata")
+
+```
+
+##grazing values from single species model
+```{r}
+gtest<- as.vector(Resilience_Frame$Grazing)
+grazing_df_SSM <- data.frame()
+
+l_simulated_data<-vector(mode="list")
+
+for(index_g in 1:length(gtest)){
+  g<- gtest[index_g]
+  start_values<-f_start_values(g)
+  start_values$g <- g
+  l_simulated_data[[index_g]]<- start_values
+ 
+}
+
+simulated_g_data_SSM <- do.call(rbind,l_simulated_data)
+
+simulated_g_data_SSM<-mutate(simulated_g_data,coral_state=(Mfinal<0.01))
+save(simulated_g_data_SSM, file="model_g_trajectories_SSM.Rdata")
+#subsetting the data in order to look at the proportions of points which yeild a stable coral state
+proportions_df_SSM <-data.frame(g=gtest,proportions=NA)
+for(iterator in 1:31){
+  g_value<-gtest[iterator]
+    subsetg<-subset(simulated_g_data_SSM, g==g_value)
+    proportions_df_SSM$proportions[iterator]<- sum(subsetg[,6])/nrow(subsetg)
+}
+
+proportions_df_SSM$g<-as.numeric(proportions_df_SSM$g)
+
+save(proportions_df_SSM, file="simulated_data_proportions_SSM.Rdata")
+
+Resilience_Frame$Resilience<-proportions_df_SSM$g
+save()
+
+Resilience_Yield_Figure<-ggplot(data=Resilience_Frame, aes(x=Avg_Yield, y=Resilience))+
+  geom_point()+
+  geom_vline(xintercept=c(0.1557), linetype="dotted")+
+  labs(title="Yield vs Resilience of Ecosystem", x="Average Yield" )
+  theme_bw()
+
+save(simulated_g_data, proportions_df, Resilience_Frame, proportions_df_SSM, simulated_g_data_SSM,  file="Combined_Model_simulated_data.Rdata")
 ```
 
