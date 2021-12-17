@@ -34,4 +34,12 @@ E_Parrot_Function <- function(v_ex6,r,K,E,tau_r){
 v_ex6 <- matrix(c(0.5,0.5,0.5,0.5), nrow = 4, byrow = TRUE)
 
 
-FISH <- E_Parrot_Function(v_ex6,0.71,1,0.2,0.1)
+FISH <- E_Parrot_Function(v_ex6,0.71,1,0.1,0.1)
+
+
+ggplot(data=FISH, aes(x=Year, y=N_2)) +
+  geom_line(color="red") +
+  geom_line(aes(x=Year, y=N_3), color="yellow")+
+  geom_line(aes(x=Year, y=N_4,), color="green")+
+  #geom_line(aes(x=Year, y=Yield_A,), color="purple")+
+  labs(x= "Year", y= "Population Distribution")

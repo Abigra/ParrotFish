@@ -18,4 +18,11 @@ plot(e,Effort_Frame$Avg_Yield )
 which.max(Effort_Frame$Avg_Yield)
 
 
+plot2<- data.frame(e, Effort_Frame$Avg_Yield)
+ggplot(data= plot2, aes(x=e, y=Effort_Frame$Avg_Yield))+
+  geom_line(color="pink")+
+  geom_point(aes(x=0.16, y=0.15572774),shape= 8, color="blue", size=8)+
+  labs(x="Effort", y="Average Yield (parrotfish)")
+
+
 
