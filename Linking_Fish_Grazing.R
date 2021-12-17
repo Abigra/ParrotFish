@@ -40,4 +40,9 @@ Fish_test <- (seq(0,2, by=0.1))
 Grazing_Test <- GrazeLine(Fish_test)
 
 
+plot<- data.frame(Fish_test,Grazing_Test)
+ggplot(data= plot, aes(x= Fish_test, y=Grazing_Test))+
+  geom_line(color="pink")+
+  geom_point(aes(x= 1.59, y=0.21),shape= 8, color="blue", size=8)+
+  labs(x="Average Yield (parrotfish)", y="Grazing Rate (% algae per time step)")
 
