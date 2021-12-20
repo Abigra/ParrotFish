@@ -23,7 +23,7 @@ Avg_MinFish <- mean(FISH$Grazers[100:150])
 
 #Line for Grazing/Fish Number
 
-GrazeMax <- 0.42
+GrazeMax <- 0.385
 GrazeMin <- 0.1
 
 m <- (GrazeMax - GrazeMin)/(Avg_MaxFish - Avg_MinFish)
@@ -43,6 +43,6 @@ Grazing_Test <- GrazeLine(Fish_test)
 plot<- data.frame(Fish_test,Grazing_Test)
 ggplot(data= plot, aes(x= Fish_test, y=Grazing_Test))+
   geom_line(color="pink")+
-  geom_point(aes(x= 1.59, y=0.21),shape= 8, color="blue", size=8)+
-  labs(x="Average Yield (parrotfish)", y="Grazing Rate (% algae per time step)")
+  geom_point(aes(x= 1.59, y=0.385),shape= 8, color="blue", size=8)+
+  labs(x="Population Size", y="Grazing Rate (% algae per time step)")
 
